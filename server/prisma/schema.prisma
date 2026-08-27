@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [vector]
+}
+
+enum Role {
+  admin
+  member
+}
+
+model Organization {
+  id        String     @id @default(uuid())
+  name      String
+  users     User[]
+  documents Document[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model User {
+  id              String       @id @default(uuid())
+  email           String       @unique
+  password        String
+  name            String
+  role            Role         @default(member)
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  aiTokensUsed    Int          @default(0)
+  aiTokensResetAt DateTime     @default(now())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Document {
+  id             String          @id @default(uuid())
+  title          String
+  fileType       String
+  status         String          @default("processing")
+  organizationId String
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploadedById   String
+  chunkCount     Int             @default(0)
+  chunks         DocumentChunk[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model DocumentChunk {
+  id         String                       @id @default(uuid())
+  documentId String
+  document   Document                     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  text       String
+  chunkIndex Int
+  embedding  Unsupported("vector(1024)")?
+  createdAt  DateTime                     @default(now())
+}
+
+model SemanticCache {
+  id             String                       @id @default(uuid())
+  organizationId String
+  query          String
+  answer         String
+  citations      Json
+  embedding      Unsupported("vector(1024)")?
+  createdAt      DateTime                     @default(now())
+}

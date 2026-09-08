@@ -4,6 +4,7 @@ import cors from "cors";
 
 import documentRoutes from "./routes/document.routes.js"
 import authRoutes from "./routes/auth.routes.js";
+import ragRoutes from "./routes/rag.routes.js"
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -32,6 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
+app.use("/api/rag", ragRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Enterprise AI Knowledge Base API running" });

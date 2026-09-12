@@ -54,3 +54,23 @@ export const getRagStats= async(req:AuthRequest,res:Response):Promise<void>=>{
     }
 
 }
+import { evaluateRagResponse } from "../services/rag.service.js";
+
+export const evalResponse = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { query, answer, chunks } = req.body;
+
+    if (!query || !answer || !chunks) {
+      res.status(400).json({ error: "query, answer and chunks are required." });
+      return;
+    }
+
+    const result = await evaluateRagResponse({ query, answer, chunks });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Evaluation failed." });
+  }
+};
